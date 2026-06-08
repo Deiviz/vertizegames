@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#06070c" />
+    <title>Juego HTML5</title>
+    <style>
+      :root {
+        --app-height: 100dvh;
+        --accent: #f7f9ff;
+        color-scheme: dark;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #06070c;
+      }
+
+      body {
+        height: var(--app-height);
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .hud {
+        position: fixed;
+        top: calc(18px + env(safe-area-inset-top, 0px));
+        left: 18px;
+        z-index: 2;
+        display: grid;
+        gap: 4px;
+        pointer-events: none;
+      }
+
+      .label {
+        color: rgba(255, 255, 255, 0.68);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .score {
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 850;
+        line-height: 1;
+      }
+
+      .hint {
+        position: fixed;
+        right: 18px;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        left: 18px;
+        z-index: 2;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.92rem;
+        font-weight: 650;
+        line-height: 1.35;
+        text-align: center;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="gameCanvas" aria-label="Juego HTML5"></canvas>
+    <div class="hud">
+      <div class="label" id="gameLabel">Score</div>
+      <div class="score" id="score">0</div>
+    </div>
+    <div class="hint">Toca o arrastra para moverte. Evita obstaculos y recoge energia.</div>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const mode = params.get("game") || "drift";
+      const themes = {
+        drift: {
+          label: "Neon Drift",
+          bgA: "#101022",
+          bgB: "#26073a",
+          player: "#f4f7ff",
+          accent: "#ff3edb",
+          pickup: "#39f6ff",
+          hazard: "#ff4e73",
+        },
+        crystal: {
+          label: "Crystal Quest",
+          bgA: "#0d2734",
+          bgB: "#204926",
+          player: "#fff5c8",
+          accent: "#83f7ff",
+          pickup: "#ffd45c",
+          hazard: "#9c6bff",
+        },
+        orbit: {
+          label: "Orbit Strike",
+          bgA: "#070816",
+          bgB: "#18294f",
+          player: "#e9f1ff",
+          accent: "#64a8ff",
+          pickup: "#ffde5c",
+          hazard: "#ff5b5b",
+        },
+      };
+
+      const theme = themes[mode] || themes.drift;
+      const canvas = document.querySelector("#gameCanvas");
+      const ctx = canvas.getContext("2d");
+      const scoreNode = document.querySelector("#score");
+      document.querySelector("#gameLabel").textContent = theme.label;
+
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+      let score = 0;
+      let time = 0;
+      let targetX = 0.5;
+      let playerX = 0.5;
+      let entities = [];
+
+      function setViewportHeight() {
+        document.documentElement.style.setProperty("--app-height", `${innerHeight}px`);
+      }
+
+      function resize() {
+        setViewportHeight();
+        dpr = Math.min(devicePixelRatio || 1, 2);
+        width = innerWidth;
+        height = innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function moveTo(clientX) {
+        targetX = Math.max(0.12, Math.min(0.88, clientX / width));
+      }
+
+      function spawn() {
+        entities.push({
+          x: 0.1 + Math.random() * 0.8,
+          y: -0.08,
+          size: 18 + Math.random() * 18,
+          speed: 0.004 + Math.random() * 0.004,
+          type: Math.random() > 0.68 ? "pickup" : "hazard",
+          rot: Math.random() * Math.PI,
+        });
+      }
+
+      function drawBackground() {
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, theme.bgA);
+        gradient.addColorStop(1, theme.bgB);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = theme.accent;
+        ctx.globalAlpha = 0.24;
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 14; i += 1) {
+          const x = ((i / 13) * width + Math.sin(time * 0.001 + i) * 18) | 0;
+          ctx.beginPath();
+          ctx.moveTo(width / 2, height * 0.38);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawPlayer(x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillStyle = theme.player;
+        ctx.shadowColor = theme.accent;
+        ctx.shadowBlur = 24;
+        ctx.beginPath();
+        ctx.moveTo(0, -34);
+        ctx.lineTo(25, 26);
+        ctx.lineTo(0, 14);
+        ctx.lineTo(-25, 26);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = theme.accent;
+        ctx.fillRect(-5, 18, 10, 24);
+        ctx.restore();
+      }
+
+      function drawEntity(entity) {
+        const x = entity.x * width;
+        const y = entity.y * height;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(entity.rot + time * 0.002);
+        ctx.fillStyle = entity.type === "pickup" ? theme.pickup : theme.hazard;
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = 18;
+        if (entity.type === "pickup") {
+          ctx.beginPath();
+          ctx.moveTo(0, -entity.size);
+          ctx.lineTo(entity.size * 0.72, 0);
+          ctx.lineTo(0, entity.size);
+          ctx.lineTo(-entity.size * 0.72, 0);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          ctx.fillRect(-entity.size * 0.8, -entity.size * 0.8, entity.size * 1.6, entity.size * 1.6);
+        }
+        ctx.restore();
+      }
+
+      function frame(now) {
+        time = now;
+        playerX += (targetX - playerX) * 0.12;
+
+        if (Math.random() < 0.045) spawn();
+        drawBackground();
+
+        const px = playerX * width;
+        const py = height * 0.78;
+        entities = entities.filter((entity) => {
+          entity.y += entity.speed;
+          drawEntity(entity);
+          const dx = entity.x * width - px;
+          const dy = entity.y * height - py;
+          const hit = Math.hypot(dx, dy) < entity.size + 28;
+          if (hit && entity.type === "pickup") score += 5;
+          if (hit && entity.type === "hazard") score = Math.max(0, score - 8);
+          return entity.y < 1.12 && !hit;
+        });
+
+        score += 0.03;
+        scoreNode.textContent = Math.floor(score);
+        drawPlayer(px, py);
+        requestAnimationFrame(frame);
+      }
+
+      addEventListener("resize", resize, { passive: true });
+      visualViewport?.addEventListener("resize", resize, { passive: true });
+      addEventListener("pointerdown", (event) => moveTo(event.clientX), { passive: true });
+      addEventListener("pointermove", (event) => moveTo(event.clientX), { passive: true });
+
+      resize();
+      requestAnimationFrame(frame);
+    </script>
+  </body>
+</html>

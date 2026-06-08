@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#090a0f" />
+    <title>HTML5 Game Showcase</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="game-feed" id="gameFeed" aria-label="Showcase de juegos HTML5"></main>
+
+    <section class="play-layer" id="playLayer" aria-hidden="true">
+      <button class="close-game" id="closeGame" type="button" aria-label="Cerrar juego">
+        <span aria-hidden="true"></span>
+      </button>
+      <iframe
+        class="game-frame"
+        id="gameFrame"
+        title="Juego HTML5"
+        allow="autoplay; fullscreen; gamepad; accelerometer; gyroscope"
+        allowfullscreen
+      ></iframe>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>

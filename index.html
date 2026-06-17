@@ -5,12 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#090a0f" />
     <title>HTML5 Game Showcase</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=demo-timeout-2" />
   </head>
   <body>
+    <header class="app-header" aria-label="Cabecera">
+      <a class="brand" href="#" aria-label="Vertize Games">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>Vertize Games</span>
+      </a>
+      <button class="icon-button" type="button" aria-label="Buscar juegos">
+        <span aria-hidden="true"></span>
+      </button>
+    </header>
+
     <main class="game-feed" id="gameFeed" aria-label="Showcase de juegos HTML5"></main>
 
+    <footer class="app-footer" aria-label="Navegacion principal">
+      <a class="footer-item is-active" href="#">
+        <span class="footer-dot" aria-hidden="true"></span>
+        Juegos
+      </a>
+      <a class="footer-item" href="#">Top</a>
+      <a class="footer-item" href="#">Nuevos</a>
+    </footer>
+
     <section class="play-layer" id="playLayer" aria-hidden="true">
+      <div class="demo-timer" id="demoTimer" aria-live="polite">
+        Demo <span id="demoSeconds">15</span>s
+      </div>
       <button class="close-game" id="closeGame" type="button" aria-label="Cerrar juego">
         <span aria-hidden="true"></span>
       </button>
@@ -21,8 +43,18 @@
         allow="autoplay; fullscreen; gamepad; accelerometer; gyroscope"
         allowfullscreen
       ></iframe>
+      <div class="demo-ended" id="demoEnded" role="dialog" aria-modal="true" aria-labelledby="demoEndedTitle" hidden>
+        <div class="demo-card">
+          <p class="demo-eyebrow">Demo finalizada</p>
+          <h2 id="demoEndedTitle">Se ha terminado el tiempo de demo</h2>
+          <p>
+            Suscribete al portal para jugar sin limite a todos los juegos HTML5.
+          </p>
+          <button class="subscribe-button" id="subscribeButton" type="button">Suscribirme</button>
+        </div>
+      </div>
     </section>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=demo-timeout-2"></script>
   </body>
 </html>

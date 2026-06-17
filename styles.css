@@ -3,6 +3,11 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --header-height: 66px;
+  --footer-height: 70px;
+  --chrome-z: 10;
+  --play-z: 100;
   color-scheme: dark;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -34,6 +39,127 @@ button {
   font: inherit;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-header,
+.app-footer {
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: var(--chrome-z);
+  display: flex;
+  align-items: center;
+  color: #fff;
+  pointer-events: auto;
+}
+
+.app-header {
+  top: 0;
+  justify-content: space-between;
+  min-height: calc(var(--header-height) + var(--safe-top));
+  padding: calc(10px + var(--safe-top)) calc(16px + var(--safe-right)) 10px
+    calc(16px + var(--safe-left));
+  background: linear-gradient(180deg, rgba(5, 6, 10, 0.78), rgba(5, 6, 10, 0));
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+  font-size: 0.96rem;
+  font-weight: 820;
+  letter-spacing: 0;
+}
+
+.brand-mark {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #f7f9ff;
+  color: #10131d;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.icon-button {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  background: rgba(10, 12, 18, 0.42);
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.icon-button span {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+.icon-button span::after {
+  position: absolute;
+  right: -6px;
+  bottom: -5px;
+  width: 8px;
+  height: 2px;
+  border-radius: 999px;
+  background: #fff;
+  content: "";
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.app-footer {
+  bottom: 0;
+  justify-content: space-around;
+  min-height: calc(var(--footer-height) + var(--safe-bottom));
+  padding: 10px calc(14px + var(--safe-right)) calc(10px + var(--safe-bottom))
+    calc(14px + var(--safe-left));
+  background: linear-gradient(0deg, rgba(5, 6, 10, 0.88), rgba(5, 6, 10, 0));
+}
+
+.footer-item {
+  display: inline-grid;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  min-height: 42px;
+  gap: 7px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.86rem;
+  font-weight: 760;
+  letter-spacing: 0;
+}
+
+.footer-item.is-active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.footer-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+}
+
 .game-feed {
   width: 100%;
   height: 100vh;
@@ -58,7 +184,8 @@ button {
   width: 100%;
   min-height: 100vh;
   min-height: var(--app-height);
-  padding: calc(22px + var(--safe-top)) 20px calc(28px + var(--safe-bottom));
+  padding: calc(var(--header-height) + var(--safe-top) + 18px) 20px
+    calc(var(--footer-height) + var(--safe-bottom) + 18px);
   overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -160,7 +287,7 @@ button {
   position: fixed;
   top: 50%;
   right: calc(10px + var(--safe-right));
-  z-index: 3;
+  z-index: calc(var(--chrome-z) + 1);
   display: grid;
   gap: 8px;
   transform: translateY(-50%);
@@ -185,7 +312,7 @@ button {
 .play-layer {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: var(--play-z);
   display: none;
   width: 100%;
   height: 100vh;
@@ -205,11 +332,32 @@ button {
   background: #05060a;
 }
 
+.demo-timer {
+  position: fixed;
+  top: calc(16px + var(--safe-top));
+  left: calc(16px + var(--safe-left));
+  z-index: calc(var(--play-z) + 2);
+  display: none;
+  min-width: 78px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(12, 14, 20, 0.74);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 820;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 .close-game {
   position: fixed;
   top: calc(12px + var(--safe-top));
   right: calc(12px + var(--safe-right));
-  z-index: 22;
+  z-index: calc(var(--play-z) + 2);
   display: grid;
   place-items: center;
   width: 52px;
@@ -246,7 +394,95 @@ button {
   transform: rotate(90deg);
 }
 
+.demo-ended {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--play-z) + 1);
+  display: grid;
+  place-items: center;
+  padding: calc(82px + var(--safe-top)) calc(20px + var(--safe-right))
+    calc(24px + var(--safe-bottom)) calc(20px + var(--safe-left));
+  background: rgba(3, 4, 8, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.demo-ended[hidden] {
+  display: none;
+}
+
+.demo-card {
+  display: grid;
+  gap: 14px;
+  width: min(100%, 360px);
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: #f7f9ff;
+  color: #10131d;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+.demo-eyebrow {
+  margin: 0;
+  color: #6d345f;
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.demo-card h2 {
+  margin: 0;
+  color: #10131d;
+  font-size: 1.72rem;
+  font-weight: 880;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.demo-card p {
+  margin: 0;
+  color: rgba(16, 19, 29, 0.72);
+  font-size: 0.98rem;
+  font-weight: 560;
+  line-height: 1.42;
+}
+
+.subscribe-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 8px;
+  background: #10131d;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 840;
+  letter-spacing: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.play-layer.is-demo-ended .game-frame {
+  pointer-events: none;
+  filter: saturate(0.68) brightness(0.72);
+}
+
+.play-layer.is-demo-ended .demo-timer {
+  display: none;
+}
+
 .is-playing .game-feed {
+  pointer-events: none;
+}
+
+.is-playing .app-header,
+.is-playing .app-footer {
   pointer-events: none;
 }
 
